@@ -1,0 +1,148 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>a_template_flow_usingSVM[class]</title><meta name="generator" content="MATLAB 7.9"><meta name="date" content="2009-10-28"><meta name="m-file" content="a_template_flow_usingSVM[class]"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">a_template_flow_usingSVM_classification</a></li><li><a href="#2">&#36733;&#20837;&#25968;&#25454;</a></li><li><a href="#3">&#25552;&#21462;&#25968;&#25454;</a></li><li><a href="#4">&#21407;&#22987;&#25968;&#25454;&#21487;&#35270;&#21270;</a></li><li><a href="#5">&#24402;&#19968;&#21270;&#39044;&#22788;&#29702;</a></li><li><a href="#6">&#24402;&#19968;&#21270;&#21518;&#21487;&#35270;&#21270;</a></li><li><a href="#7">&#38477;&#20026;&#39044;&#22788;&#29702;(pca)</a></li><li><a href="#8">feature selection</a></li><li><a href="#9">&#21442;&#25968;c&#21644;g&#23547;&#20248;&#36873;&#25321;</a></li><li><a href="#10">&#20998;&#31867;&#39044;&#27979;</a></li></ul></div><h2>a_template_flow_usingSVM_classification<a name="1"></a></h2><p>for classificaton</p><pre class="codeinput">clear;
+clc;
+</pre><pre class="codeoutput">Error: Unbalanced or unexpected parenthesis or bracket.
+</pre><h2>&#36733;&#20837;&#25968;&#25454;<a name="2"></a></h2><pre class="codeinput">load <span class="string">wine</span>;
+</pre><h2>&#25552;&#21462;&#25968;&#25454;<a name="3"></a></h2><pre class="codeinput">train_data = [wine(1:30,:);wine(60:95,:);wine(131:153,:)];
+train_data_labels = [wine_labels(1:30);wine_labels(60:95);wine_labels(131:153)];
+
+test_data = [wine(31:59,:);wine(96:130,:);wine(154:178,:)];
+test_data_labels = [wine_labels(31:59);wine_labels(96:130);wine_labels(154:178)];
+</pre><h2>&#21407;&#22987;&#25968;&#25454;&#21487;&#35270;&#21270;<a name="4"></a></h2><pre class="codeinput">figure;
+boxplot(train_data,<span class="string">'orientation'</span>,<span class="string">'horizontal'</span>);
+grid <span class="string">on</span>;
+title(<span class="string">'Visualization for original data'</span>);
+figure;
+<span class="keyword">for</span> i = 1:length(train_data(:,1))
+    plot(train_data(i,1),train_data(i,2),<span class="string">'r*'</span>);
+    hold <span class="string">on</span>;
+<span class="keyword">end</span>
+grid <span class="string">on</span>;
+title(<span class="string">'Visualization for 1st dimension &amp; 2nd dimension of original data'</span>);
+</pre><h2>&#24402;&#19968;&#21270;&#39044;&#22788;&#29702;<a name="5"></a></h2><pre class="codeinput">[train_scale,test_scale] = scaleForSVM(train_data,test_data,0,1);
+</pre><h2>&#24402;&#19968;&#21270;&#21518;&#21487;&#35270;&#21270;<a name="6"></a></h2><pre class="codeinput">figure;
+<span class="keyword">for</span> i = 1:length(train_scale(:,1))
+    plot(train_scale(i,1),train_scale(i,2),<span class="string">'r*'</span>);
+    hold <span class="string">on</span>;
+<span class="keyword">end</span>
+grid <span class="string">on</span>;
+title(<span class="string">'Visualization for 1st dimension &amp; 2nd dimension of scale data'</span>);
+</pre><h2>&#38477;&#20026;&#39044;&#22788;&#29702;(pca)<a name="7"></a></h2><pre class="codeinput">[train_pca,test_pca] = pcaForSVM(train_scale,test_scale,90);
+</pre><h2>feature selection<a name="8"></a></h2><p>using GA,...,etc.</p><h2>&#21442;&#25968;c&#21644;g&#23547;&#20248;&#36873;&#25321;<a name="9"></a></h2><pre class="codeinput">[bestacc,bestc,bestg] = SVMcgForClass(train_data_labels,train_pca,-4,6,-5,4,3,0.5,0.5,0.9)
+cmd = [<span class="string">'-c '</span>,num2str(bestc),<span class="string">' -g '</span>,num2str(bestg)];
+</pre><h2>&#20998;&#31867;&#39044;&#27979;<a name="10"></a></h2><pre class="codeinput">model = svmtrain(train_data_labels, train_pca,cmd);
+[ptrain_label, train_acc] = svmpredict(train_data_labels, train_pca, model);
+[ptest_label, test_acc] = svmpredict(test_data_labels, test_pca, model);
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.9<br></p></div><!--
+##### SOURCE BEGIN #####
+%% a_template_flow_usingSVM_classification
+% for classificaton
+clear;
+clc;
+%% 载入数据
+load wine;
+%% 提取数据
+train_data = [wine(1:30,:);wine(60:95,:);wine(131:153,:)];
+train_data_labels = [wine_labels(1:30);wine_labels(60:95);wine_labels(131:153)];
+
+test_data = [wine(31:59,:);wine(96:130,:);wine(154:178,:)];
+test_data_labels = [wine_labels(31:59);wine_labels(96:130);wine_labels(154:178)];
+%% 原始数据可视化
+figure;
+boxplot(train_data,'orientation','horizontal');
+grid on;
+title('Visualization for original data');
+figure;
+for i = 1:length(train_data(:,1))
+    plot(train_data(i,1),train_data(i,2),'r*');
+    hold on;
+end
+grid on;
+title('Visualization for 1st dimension & 2nd dimension of original data');
+%% 归一化预处理
+[train_scale,test_scale] = scaleForSVM(train_data,test_data,0,1);
+%% 归一化后可视化
+figure;
+for i = 1:length(train_scale(:,1))
+    plot(train_scale(i,1),train_scale(i,2),'r*');
+    hold on;
+end
+grid on;
+title('Visualization for 1st dimension & 2nd dimension of scale data');
+%% 降为预处理(pca)
+[train_pca,test_pca] = pcaForSVM(train_scale,test_scale,90);
+%% feature selection
+% using GA,...,etc.
+%% 参数c和g寻优选择
+[bestacc,bestc,bestg] = SVMcgForClass(train_data_labels,train_pca,-4,6,-5,4,3,0.5,0.5,0.9)
+cmd = ['-c ',num2str(bestc),' -g ',num2str(bestg)];
+%% 分类预测
+model = svmtrain(train_data_labels, train_pca,cmd);
+[ptrain_label, train_acc] = svmpredict(train_data_labels, train_pca, model);
+[ptest_label, test_acc] = svmpredict(test_data_labels, test_pca, model);
+##### SOURCE END #####
+--></body></html>

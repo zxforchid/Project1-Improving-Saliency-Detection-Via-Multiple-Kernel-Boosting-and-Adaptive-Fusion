@@ -1,0 +1,149 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>test_for_pcaForSVM</title><meta name="generator" content="MATLAB 7.9"><meta name="date" content="2009-10-27"><meta name="m-file" content="test_for_pcaForSVM"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>test_for_pcaForSVM</h1><pre class="codeinput">clear;
+clc;
+</pre><pre class="codeinput">load <span class="string">wine</span>;
+
+train_wine = [wine(1:30,:);wine(60:95,:);wine(131:153,:)];
+train_wine_labels = [wine_labels(1:30);wine_labels(60:95);wine_labels(131:153)];
+
+test_wine = [wine(31:59,:);wine(96:130,:);wine(154:178,:)];
+test_wine_labels = [wine_labels(31:59);wine_labels(96:130);wine_labels(154:178)];
+
+[train_wine,pstrain] = mapminmax(train_wine');
+pstrain.ymin = 0;
+pstrain.ymax = 1;
+[train_wine,pstrain] = mapminmax(train_wine,pstrain);
+
+[test_wine,pstest] = mapminmax(test_wine');
+pstest.ymin = 0;
+pstest.ymax = 1;
+[test_wine,pstest] = mapminmax(test_wine,pstest);
+
+train_wine = train_wine';
+test_wine = test_wine';
+</pre><pre class="codeinput">[train_pca,test_pca] = pcaForSVM(train_wine,test_wine,90);
+</pre><img vspace="5" hspace="5" src="test_for_pcaForSVM_01.png" alt=""> <pre class="codeinput">[bestacc,bestc,bestg] = SVMcgForClass(train_wine_labels,train_pca,-4,6,-5,4,3,0.5,0.5,0.9)
+cmd = [<span class="string">'-c '</span>,num2str(bestc),<span class="string">' -g '</span>,num2str(bestg)];
+
+model = svmtrain(train_wine_labels, train_pca,cmd);
+[ptrain_label, train_acc] = svmpredict(train_wine_labels, train_pca, model);
+[ptest_label, test_acc] = svmpredict(test_wine_labels, test_pca, model);
+</pre><pre class="codeoutput">
+bestacc =
+
+   98.8764
+
+
+bestc =
+
+    0.7071
+
+
+bestg =
+
+    1.4142
+
+Accuracy = 98.8764% (88/89) (classification)
+Accuracy = 97.7528% (87/89) (classification)
+</pre><img vspace="5" hspace="5" src="test_for_pcaForSVM_02.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.9<br></p></div><!--
+##### SOURCE BEGIN #####
+%% test_for_pcaForSVM
+clear;
+clc;
+%%
+load wine;
+
+train_wine = [wine(1:30,:);wine(60:95,:);wine(131:153,:)];
+train_wine_labels = [wine_labels(1:30);wine_labels(60:95);wine_labels(131:153)];
+
+test_wine = [wine(31:59,:);wine(96:130,:);wine(154:178,:)];
+test_wine_labels = [wine_labels(31:59);wine_labels(96:130);wine_labels(154:178)];
+
+[train_wine,pstrain] = mapminmax(train_wine');
+pstrain.ymin = 0;
+pstrain.ymax = 1;
+[train_wine,pstrain] = mapminmax(train_wine,pstrain);
+
+[test_wine,pstest] = mapminmax(test_wine');
+pstest.ymin = 0;
+pstest.ymax = 1;
+[test_wine,pstest] = mapminmax(test_wine,pstest);
+
+train_wine = train_wine';
+test_wine = test_wine';
+%%
+[train_pca,test_pca] = pcaForSVM(train_wine,test_wine,90);
+
+%%
+[bestacc,bestc,bestg] = SVMcgForClass(train_wine_labels,train_pca,-4,6,-5,4,3,0.5,0.5,0.9)
+cmd = ['-c ',num2str(bestc),' -g ',num2str(bestg)];
+
+model = svmtrain(train_wine_labels, train_pca,cmd);
+[ptrain_label, train_acc] = svmpredict(train_wine_labels, train_pca, model);
+[ptest_label, test_acc] = svmpredict(test_wine_labels, test_pca, model);
+##### SOURCE END #####
+--></body></html>

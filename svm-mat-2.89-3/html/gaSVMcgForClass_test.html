@@ -1,0 +1,170 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>&#28165;&#31354;&#29615;&#22659;</title><meta name="generator" content="MATLAB 7.9"><meta name="date" content="2009-10-28"><meta name="m-file" content="gaSVMcgForClass_test"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>&#28165;&#31354;&#29615;&#22659;</h1><pre class="codeinput">clear
+clc
+</pre><pre class="codeinput">load <span class="string">wine</span>;
+train = [wine(1:30,:);wine(60:95,:);wine(131:153,:)];
+train_label = [wine_labels(1:30);wine_labels(60:95);wine_labels(131:153)];
+test = [wine(31:59,:);wine(96:130,:);wine(154:178,:)];
+test_label = [wine_labels(31:59);wine_labels(96:130);wine_labels(154:178)];
+
+[train,pstrain] = mapminmax(train');
+pstrain.ymin = 0;
+pstrain.ymax = 1;
+[train,pstrain] = mapminmax(train,pstrain);
+
+[test,pstest] = mapminmax(test');
+pstest.ymin = 0;
+pstest.ymax = 1;
+[test,pstest] = mapminmax(test,pstest);
+
+train = train';
+test = test';
+</pre><pre class="codeinput">tic;
+
+ga_option.maxgen = 100;
+ga_option.sizepop = 20;
+ga_option.pCrossover = 0.4;
+ga_option.pMutation = 0.01;
+ga_option.cbound = [0.1,100];
+ga_option.gbound = [0.01,100];
+ga_option.v = 3;
+[bestCVaccuarcy,bestc,bestg,ga_option] = gaSVMcgForClass(train_label,train,ga_option);
+bestc
+bestg
+bestCVaccuarcy
+cmd = [<span class="string">'-c '</span>,num2str(bestc),<span class="string">' -g '</span>,num2str(bestg)];
+model = svmtrain(train_label,train,cmd);
+[pretrain,trainacc] = svmpredict(train_label,train,model);
+[pretest,testacc] = svmpredict(test_label,test,model);
+
+toc;
+</pre><pre class="codeoutput">
+bestc =
+
+   21.9301
+
+
+bestg =
+
+    3.0494
+
+
+bestCVaccuarcy =
+
+   98.8764
+
+Accuracy = 100% (89/89) (classification)
+Accuracy = 96.6292% (86/89) (classification)
+Elapsed time is 18.526261 seconds.
+</pre><img vspace="5" hspace="5" src="gaSVMcgForClass_test_01.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 7.9<br></p></div><!--
+##### SOURCE BEGIN #####
+%% 清空环境
+clear
+clc
+
+%%
+load wine;
+train = [wine(1:30,:);wine(60:95,:);wine(131:153,:)];
+train_label = [wine_labels(1:30);wine_labels(60:95);wine_labels(131:153)];
+test = [wine(31:59,:);wine(96:130,:);wine(154:178,:)];
+test_label = [wine_labels(31:59);wine_labels(96:130);wine_labels(154:178)];
+
+[train,pstrain] = mapminmax(train');
+pstrain.ymin = 0;
+pstrain.ymax = 1;
+[train,pstrain] = mapminmax(train,pstrain);
+
+[test,pstest] = mapminmax(test');
+pstest.ymin = 0;
+pstest.ymax = 1;
+[test,pstest] = mapminmax(test,pstest);
+
+train = train';
+test = test';
+
+%%
+tic;
+
+ga_option.maxgen = 100;
+ga_option.sizepop = 20; 
+ga_option.pCrossover = 0.4;
+ga_option.pMutation = 0.01;
+ga_option.cbound = [0.1,100];
+ga_option.gbound = [0.01,100];
+ga_option.v = 3;
+[bestCVaccuarcy,bestc,bestg,ga_option] = gaSVMcgForClass(train_label,train,ga_option);
+bestc
+bestg
+bestCVaccuarcy
+cmd = ['-c ',num2str(bestc),' -g ',num2str(bestg)];
+model = svmtrain(train_label,train,cmd);
+[pretrain,trainacc] = svmpredict(train_label,train,model);
+[pretest,testacc] = svmpredict(test_label,test,model);
+
+toc;
+##### SOURCE END #####
+--></body></html>
